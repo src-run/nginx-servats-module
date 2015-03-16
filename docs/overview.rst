@@ -4,15 +4,15 @@ Overview
 
 *Scribe / Nginx Servats Module* an Nginx module that provides server status information.
 
-Latest Code Statistics
-======================
+Source Information
+==================
 
 :License:         |license|
 :Build:           |travis|
 :Latest Release:  |gittag|
 
-Our Standards
-=============
+Quality Standards
+=================
 
 - **Continuous Integration**: Utilization of `Travis CI <https://nginx-servats-module.docs.scribe.tools/ci>`_
   to provide per-commit reports on the success or failure status of our builds.
@@ -39,7 +39,17 @@ Documentation
 
 :General:       |docs|
 
-General documentation is provided via compiled Read the Docs Sphinx files.
+All the documentation for the *Scribe / Nginx Servats Module* is provided via
+compiled Sphinx files and hosted on `Read the Docs <https://readthedocs.org/>`_.
+You can browser the docs via the
+`website <https://nginx-servats-module.docs.scribe.tools/docs>`_ or download an
+`Epub <https://readthedocs.org/projects/nginx-servats-module/downloads/epub/latest/>`_
+for offline reading.
+
+Screenshot
+==========
+
+.. image:: /images/servats.png
 
 .. |license| image:: https://img.shields.io/badge/license-MIT-008ac6.svg?style=flat-square
    :target: https://nginx-servats-module.docs.scribe.tools/license
