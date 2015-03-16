@@ -176,10 +176,10 @@ index 88e151c..ce5daf4 100644
 +
 +    ngx_num_workers = ccf->worker_processes;
 +
-+    workers = (worker_score *) (shared + 9 * cl);
++    workers = (worker_score *) (shared + 10 * cl);
 +    init_workers(workers);
 +
-+    conns = (conn_score *) (shared + 9 * cl + ccf->worker_processes * WORKER_SCORE_LEN);
++    conns = (conn_score *) (shared + 10 * cl + ccf->worker_processes * WORKER_SCORE_LEN);
 +
 +#endif
 +

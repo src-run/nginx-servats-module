@@ -22,6 +22,18 @@ Our Standards
   `documentation and examples <https://nginx-servats-module.docs.scribe.tools/docs>`_
   compiled using the wonderful `Read the Docs <https://readthedocs.org/>`_ service.
 
+Supported Nginx Builds
+======================
+
+While you can build this module against any version of Nginx, we only supply the 
+require patch files for a subset of version.
+
+- :code:`0.8.54`—:code:`0.8.55`
+- :code:`1.0.11`
+- :code:`1.4.2`
+- :code:`1.6.2`
+- :code:`1.7.8`—:code:`1.7.10`
+
 Documentation
 =============
 
