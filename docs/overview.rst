@@ -25,7 +25,7 @@ Our Standards
 Supported Nginx Builds
 ======================
 
-While you can build this module against any version of Nginx, we only supply the 
+While you can build this module against any version of Nginx, we only supply the
 require patch files for a subset of version.
 
 - :code:`0.8.54`—:code:`0.8.55`

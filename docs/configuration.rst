@@ -92,7 +92,7 @@ servats_theme_href_script
 
 This directive can be optionally set to include a custom JavaScript :code:`script`
 at the end of the HTML body. It is intended to include an external, custom JavaScript
-file that performs custom actions on the HTML. When set with :code:`servats_theme_both` 
+file that performs custom actions on the HTML. When set with :code:`servats_theme_both`
 enabled, the custom JS will be the *last JS file* included at the end of the HTML body.
 When :code:`servats_theme_both` is disabled, the custom JS will be the *only JS include*
 at the end of the HTML body.
@@ -121,12 +121,12 @@ This configuration directive determines whether the internal CSS and JavaScript 
 be applied *as well as* any user-defined CSS and JavaScript. By default, this directive
 is enabled. This means that using any of the :code:`servats_theme_href_*` directives
 will apply those *in addition to* the internal, default CSS and JavaScript. When this
-directive is set to :code:`off`, only the user-defined CSS and JavaScript will be 
+directive is set to :code:`off`, only the user-defined CSS and JavaScript will be
 included in the page.
 
-:Default:			:code:`on`
+:Default:			    :code:`on`
 :Valid Entries:		:code:`off`, :code:`on`
-:Contexts:			:code:`http`, :code:`server`, :code:`location`
+:Contexts:			  :code:`http`, :code:`server`, :code:`location`
 
 Example usage:
 

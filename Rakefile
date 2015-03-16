@@ -10,6 +10,7 @@
 
 require 'rake'
 require 'rspec/core/rake_task'
+require 'yaml'
 
 RSpec::Core::RakeTask.new(:integration) do |t|
     t.pattern = 'spec/**/*_spec.rb'
@@ -43,6 +44,18 @@ task :test => ['nginx:start', :integration, 'nginx:stop']
 
 desc 'Run tests on fresh compile'
 task :compile_and_test => ['nginx:compile', :test]
+
+desc 'Run through all versions and test'
+task :ci_test_all do
+    travis_yml = YAML.load_file('.travis.yml');
+    travis_yml['env'].each do |key|
+        ENV['NGX_VERSION_ENV'] = key.split("=")[1];
+        Rake::Task["nginx:compile"].execute
+        Rake::Task["nginx:start"].execute
+        Rake::Task["integration"].execute
+        Rake::Task["nginx:stop"].execute
+    end
+end
 
 desc 'Default is to run tests'
 task :default => [:test]

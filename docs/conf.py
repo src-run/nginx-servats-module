@@ -40,7 +40,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Nginx Servats Module'
-copyright = u'2014–2015, Rob Frawley 2nd, Scribe Inc'
+copyright = u'2014–2015 Rob Frawley 2nd of Scribe Inc'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -270,7 +270,7 @@ texinfo_documents = [
 epub_title = u'Nginx Servats Module'
 epub_author = u'Rob Frawley 2nd'
 epub_publisher = u'Scribe Inc'
-epub_copyright = u'2014–2015, Rob Frawley 2nd, Scribe Inc'
+epub_copyright = u'2014–2015 Rob Frawley 2nd of Scribe Inc'
 
 # The basename for the epub file. It defaults to the project name.
 #epub_basename = u'Nginx Servats Module'

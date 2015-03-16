@@ -11,6 +11,7 @@ Contents
 
    overview
    installation
+   test_suite
    configuration
    links
    license
