@@ -22,7 +22,7 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').response_code).to eq(200)
         end
     end
-    describe 'Module Response Content' do
+    describe 'Module Response Content (Standard Config)' do
         it 'should contain module header' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("Nginx Server Status")
         end
@@ -30,10 +30,21 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("HTTP Servats Module/1.0.0-alpha2")
         end
         it 'should contain active connections of 1' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("<h3>Workers</h3>");
+            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Workers</h3>");
         end
         it 'should contain workers' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("<h3>Requests Over Time</h3>");
+            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Requests Over Time</h3>");
+        end
+    end
+    describe 'Module Response Content (User Theme Config)' do
+        it 'should contain module header' do
+            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("/some/path/to/stylesheet.css")
+        end
+        it 'should contain the correct module version' do
+            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("/some/path/to/lib.js")
+        end
+        it 'should contain active connections of 1' do
+            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("/some/path/to/main.js");
         end
     end
 end
