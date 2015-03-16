@@ -17,7 +17,7 @@ Our Standards
 - **Continuous Integration**: Utilization of `Travis CI <https://nginx-servats-module.docs.scribe.tools/ci>`_
   to provide per-commit reports on the success or failure status of our builds.
 - **Tests and Coverage**: Automated testing using Ruby's rspec to query a compiled
-  Nginx server and determine if it reacts and responds as intended.uality>`_.
+  Nginx server and determine if it reacts and responds as intended.
 - **Documentation**: Comprehensive
   `documentation and examples <https://nginx-servats-module.docs.scribe.tools/docs>`_
   compiled using the wonderful `Read the Docs <https://readthedocs.org/>`_ service.
