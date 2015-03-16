@@ -63,9 +63,10 @@
                                 "       margin-left:12px;\n" \
                                 "      }\n" \
                                 "      section {\n" \
+                                "       overflow: hidden;\n" \
                                 "       transition: box-shadow 1s ease-out;\n" \
-                                "       -webkit-box-shadow: 0 2px 10px #efefef;\n" \
-                                "       box-shadow: 0 2px 10px #efefef;\n" \
+                                "       -webkit-box-shadow: 0 2px 14px #ccc;\n" \
+                                "       box-shadow: 0 2px 14px #ccc;\n" \
                                 "       margin: 28px 0!important;\n" \
                                 "       background-color: rgba(53,77,72,.04)!important;\n" \
                                 "       border: 1px solid rgba(44,62,80,.26)!important;\n" \
@@ -76,9 +77,6 @@
                                 "       line-height: 1.42857143;\n" \
                                 "       color: #2c3e50;\n" \
                                 "       width: 100%;\n" \
-                                "      }\n" \
-                                "      section:hover {\n" \
-                                "       box-shadow: 0 2px 14px #ccc;\n" \
                                 "      }\n" \
                                 "      section h3 {\n" \
                                 "       transition: background-color 1s;\n" \
@@ -97,11 +95,14 @@
                                 "      section dl {\n" \
                                 "       margin:28px 0 8px 0;\n" \
                                 "      }\n" \
+                                "      section dd {\n" \
+                                "       font-family: \"Ubuntu Mono\", monospace;\n" \
+                                "      }\n" \
                                 "      #stats-states {\n" \
                                 "       overflow:hidden;\n" \
                                 "      }\n" \
-                                "      .request-operation {\n" \
-                                "       font-family:Ubuntu Mono;\n" \
+                                "      .request-operation, .worker-operation {\n" \
+                                "       margin: 20px 20px -10px 20px;\n" \
                                 "      }\n" \
                                 "      .request-return {\n" \
                                 "       font-family:Ubuntu Mono;\n" \
@@ -109,8 +110,11 @@
                                 "      .has-chart {\n" \
                                 "       text-align:center;\n" \
                                 "      }\n" \
-                                "      .has-chart canvas {\n" \
+                                "      .has-chart .chart-wrapper {\n" \
                                 "       margin:18px auto 0 auto;\n" \
+                                "      }\n" \
+                                "      .table-wrapper {\n" \
+                                "       margin: 20px 20px -10px 20px;\n" \
                                 "      }\n" \
                                 "      footer {\n" \
                                 "       background-color:rgba(78, 44, 80, 0.19);\n" \
@@ -143,7 +147,14 @@
                                 "                window.getCurrentDatetimeString = getCurrentDatetimeString;\n" \
                                 "            })();\n" \
                                 "            $(\"#page-generation-time\").html(getCurrentDatetimeString());\n" \
-                                "        });\n"
+                                "        });\n" \
+                                "        Chart.defaults.global.animation              = false;\n" \
+                                "        Chart.defaults.global.responsive             = true;\n" \
+                                "        Chart.defaults.global.maintainAspectRatio    = true;\n" \
+                                "        Chart.defaults.global.tooltipFontSize        = 11;\n" \
+                                "        Chart.defaults.global.tooltipFontFamily      = \"'Roboto Condensed', 'Roboto', Helvetica Neue', 'Helvetica', 'Arial', sans-serif\";\n" \
+                                "        Chart.defaults.global.tooltipTitleFontSize   = 11;\n" \
+                                "        Chart.defaults.global.tooltipTitleFontFamily = \"'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif\";\n"
 
 #define  HTML_BD_JSE_INT_CHART1 "        var statesChartData = [\n" \
                                 "          {\n" \
@@ -167,6 +178,9 @@
                                 "        ];\n" \
                                 "        var statesChartCtx = $(\"#stats-states-chart\").get(0).getContext(\"2d\");\n" \
                                 "        var statesChart = new Chart(statesChartCtx).Pie(statesChartData);\n"
+
+#define  HTML_BD_JSE_INT_CHART2 "        var timeChartCtx = $(\"#stats-requests-by-time-chart\").get(0).getContext(\"2d\");\n" \
+                                "        var timeChart = new Chart(timeChartCtx).Bar(timeChartData);\n"
 
 #define  HTML_BD_JSE_INT_CLOSE  "    </script>\n"
 
@@ -209,10 +223,10 @@
                                 "            <dl class=\"dl-horizontal\">\n" \
                                 "             <dt>Active Connections</dt>\n" \
                                 "               <dd>%uA</dd>\n" \
+                                "             <dt>Accepted/Handled</dt>\n" \
+                                "               <dd>%uA of %uA</dd>\n" \
                                 "             <dt>Total Requests</dt>\n" \
                                 "               <dd>%uA</dd>\n" \
-                                "             <dt>Accepts/Handled</dt>\n" \
-                                "               <dd>%uA of %uA</dd>\n" \
                                 "            </dl>\n" \
                                 "          </section>\n" \
                                 "        </div>\n"
@@ -220,7 +234,7 @@
 #define  HTML_SEC_BASIC_COL_2   "        <div class=\"col-md-6\">\n" \
                                 "          <section id=\"stats-states\">\n" \
                                 "            <h3>Request States</h3>\n" \
-                                "            <div class=\"col-md-6\">\n" \
+                                "            <div class=\"col-md-6 col-md-offset-0 col-sm-6 col-sm-offset-3\">\n" \
                                 "              <dl class=\"dl-horizontal\">\n" \
                                 "                <dt>Reading</dt>\n" \
                                 "                  <dd>%uA</dd>\n" \
@@ -230,13 +244,85 @@
                                 "                  <dd>%uA</dd>\n" \
                                 "              </dl>\n" \
                                 "            </div>\n" \
-                                "            <div class=\"col-md-6 has-chart\">\n" \
-                                "              <canvas id=\"stats-states-chart\" width=\"140\" height=\"140\"></canvas>\n" \
+                                "            <div class=\"col-md-4 col-md-offset-1 col-sm-6 col-sm-offset-3 has-chart\">\n" \
+                                "              <div class=\"chart-wrapper\">\n" \
+                                "                <canvas id=\"stats-states-chart\" width=\"140\" height=\"140\"></canvas>\n" \
+                                "              </div>\n" \
                                 "            </div>\n" \
                                 "          </section>\n" \
                                 "        </div>\n"
 
 #define  HTML_SEC_BASIC_CLOSE   "      </div>\n"
+
+#define  HTML_SEC_WAR_START     "      <div class=\"row\">\n"
+
+#define  HTML_SEC_WAR_COL_1_S   "        <div class=\"col-md-6\">\n" \
+                                "          <section id=\"stats-workers\">\n" \
+                                "            <h3>Workers</h3>\n" \
+                                "            <div class=\"table-wrapper\">\n" \
+                                "              <table class=\"table table-striped\">\n" \
+                                "                <thead>\n" \
+                                "                 <tr>\n" \
+                                "                   <th>Worker</th>\n" \
+                                "                   <th>PID</th>\n" \
+                                "                   <th>Requests</th>\n" \
+                                "                   <th>Operation</th>\n" \
+                                "                   <th>CPU</th>\n" \
+                                "                   <th>Megabytes</th>\n" \
+                                "                 </tr>\n" \
+                                "               </thead>\n" \
+                                "               <tbody>\n"
+
+#define  HTML_SEC_WAR_COL_1_ROW "                 <tr>\n" \
+                                "                   <td> %4d </td>\n" \
+                                "                   <td> %5d </td>\n" \
+                                "                   <td> %d </td>\n" \
+                                "                   <td><span class=\"label label-default\"> %c </span></td>\n" \
+                                "                   <td> %.2f </td>\n" \
+                                "                   <td> %.2f </td>\n" \
+                                "                 </tr>\n"
+
+#define  HTML_SEC_WAR_COL_1_C   "               </tbody>\n" \
+                                "              </table>\n" \
+                                "            </div>\n" \
+                                "          </section>\n" \
+                                "        </div>\n"
+
+#define  HTML_SEC_WAR_COL_2     "        <div class=\"col-md-6\">\n" \
+                                "          <section id=\"stats-requests-by-time\">\n" \
+                                "            <h3>Requests Over Time</h3>\n" \
+                                "            <div class=\"col-md-6 col-md-offset-0 col-sm-6 col-sm-offset-3\">\n" \
+                                "              <dl class=\"dl-horizontal\">\n" \
+                                "                <dt>Last %2d Seconds</dt>\n" \
+                                "                  <dd>%.02f</dd>\n" \
+                                "                <dt>Last %2d Seconds</dt>\n" \
+                                "                  <dd>%.02f</dd>\n" \
+                                "              </dl>\n" \
+                                "            </div>\n" \
+                                "            <div class=\"col-md-4 col-md-offset-1 col-sm-6 col-sm-offset-3 has-chart\">\n" \
+                                "              <div class=\"chart-wrapper\">\n" \
+                                "                <canvas id=\"stats-requests-by-time-chart\" width=\"240\" height=\"280\"></canvas>\n" \
+                                "              </div>\n" \
+                                "            </div>\n" \
+                                "            <script>\n" \
+                                "            var timeChartData = {\n" \
+                                "              scaleOverride: 100,\n" \
+                                "              labels: [\"%2d s\", \"%2d s\"],\n" \
+                                "              datasets: [\n" \
+                                "                {\n" \
+                                "                  fillColor: \"#5AD3D1\",\n" \
+                                "                  strokeColor: \"#46BFBD\",\n" \
+                                "                  highlightFill: \"#46BFBD\",\n" \
+                                "                  highlightStroke: \"#46BFBD\",\n" \
+                                "                  data: [%.02f, %.02f]\n" \
+                                "                }\n" \
+                                "              ]\n" \
+                                "            };\n" \
+                                "            </script>\n" \
+                                "          </section>\n" \
+                                "        </div>\n"
+
+#define  HTML_SEC_WAR_CLOSE     "      </div>\n"
 
 /**
  * Section: Footer fragments

@@ -163,6 +163,16 @@ ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *parent, void  *child)
 
 
 /**
+ * Get decending index
+ */
+static inline ngx_uint_t
+get_dec_qps_index(ngx_uint_t index)
+{
+    return index == 0 ? RECENT_PERIOD - 1 : index - 1;
+}
+
+
+/**
  * Helper to attempt to retrieve the system hostname from Nginx
  */
 static  u_char *
@@ -294,6 +304,7 @@ put_html_body_close(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
         size += ngx_sizeof_ssz(HTML_BD_JSE_INT_START) +
             ngx_sizeof_ssz(HTML_BD_JSE_INT_TIME) +
             ngx_sizeof_ssz(HTML_BD_JSE_INT_CHART1) +
+            ngx_sizeof_ssz(HTML_BD_JSE_INT_CHART2) +
             ngx_sizeof_ssz(HTML_BD_JSE_INT_CLOSE) +
             (NGX_ATOMIC_T_LEN * 3);
     }
@@ -322,6 +333,7 @@ put_html_body_close(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
         b->last = ngx_sprintf(b->last, HTML_BD_JSE_INT_TIME);
         b->last = ngx_sprintf(b->last, HTML_BD_JSE_INT_CHART1, reqs_reading,
             reqs_writing, (cons_active - (reqs_reading + reqs_writing)));
+        b->last = ngx_sprintf(b->last, HTML_BD_JSE_INT_CHART2);
         b->last = ngx_sprintf(b->last, HTML_BD_JSE_INT_CLOSE);
     }
 
@@ -576,7 +588,7 @@ put_section_row_basic_status(ngx_http_request_t  *r)
 
     b->last = ngx_sprintf(b->last, HTML_SEC_BASIC_START);
 
-    b->last = ngx_sprintf(b->last, HTML_SEC_BASIC_COL_1, cons_active, reqs_total, cons_accepted, cons_handled);
+    b->last = ngx_sprintf(b->last, HTML_SEC_BASIC_COL_1, cons_active, cons_accepted, cons_handled, reqs_total);
     b->last = ngx_sprintf(b->last, HTML_SEC_BASIC_COL_2, reqs_reading, reqs_writing, cons_active - (reqs_reading + reqs_writing));
 
     b->last = ngx_sprintf(b->last, HTML_SEC_BASIC_CLOSE);
@@ -586,6 +598,106 @@ put_section_row_basic_status(ngx_http_request_t  *r)
 
     return c;
 }
+
+
+static  ngx_chain_t *
+put_section_row_war_status(ngx_http_request_t  *r)
+{
+    worker_score  *ws;
+    ngx_time_t    *tp;
+    ngx_chain_t   *c;
+    ngx_buf_t     *b;
+    uint32_t       query_cnt_s;
+    uint32_t       query_cnt_l;
+    uint32_t       current;
+    uint32_t       past;
+    uint32_t       index;
+    uint32_t       tmp_idx;
+    uint32_t       hz;
+    uint32_t       i;
+    uint32_t       j;
+    size_t         size;
+    size_t         workerSize;
+
+    if (WORKER_DPLY_PERIOD_L <= WORKER_DPLY_PERIOD_S || RECENT_PERIOD <= WORKER_DPLY_PERIOD_L) {
+        return NGX_OK;
+    }
+
+    query_cnt_s = 0;
+    query_cnt_l = 0;
+    hz          = sysconf(_SC_CLK_TCK);
+    tp          = ngx_timeofday();
+    current     = (uint32_t) tp->sec;
+    current    -= 1;
+    index       = current & RECENT_MASK;
+
+    workerSize = ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_ROW) +
+        4 + 5 + 5 + 1 +
+        (NGX_INT64_LEN * 2);
+
+    size = ngx_sizeof_ssz(HTML_SEC_WAR_START) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_S) +
+        (workerSize * ngx_num_workers) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_C) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_2) +
+        7 + sizeof(WORKER_DPLY_PERIOD_S) +
+        7 + sizeof(WORKER_DPLY_PERIOD_L) +
+        7 + sizeof(WORKER_DPLY_PERIOD_S) +
+        7 + sizeof(WORKER_DPLY_PERIOD_L) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_CLOSE);
+
+    b = ngx_create_temp_buf(r->pool, size);
+    if (b == NULL) {
+        return NULL;
+    }
+
+    c = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+    if (c == NULL) {
+        return NULL;
+    }
+
+    b->last = ngx_sprintf(b->last, HTML_SEC_WAR_START);
+    b->last = ngx_sprintf(b->last, HTML_SEC_WAR_COL_1_S);
+
+    for (i = 0; i < ngx_num_workers; i++) {
+        ws = (worker_score *) ((char *)workers + WORKER_SCORE_LEN * i);
+
+        b->last = ngx_sprintf(b->last, HTML_SEC_WAR_COL_1_ROW, i, ws->pid, ws->access_count, ws->mode,
+            ((ws->times.tms_utime + ws->times.tms_stime + ws->times.tms_cutime + ws->times.tms_cstime) / (float) hz),
+            ((float) ws->bytes_sent / BYTE2BASE2_MEGABYTE));
+
+        tmp_idx = index;
+        past    = current;
+        for (j = 0; j < WORKER_DPLY_PERIOD_L; j++) {
+            if (past == ws->recent_request_cnt [tmp_idx].time) {
+                query_cnt_l += ws->recent_request_cnt [tmp_idx].cnt;
+
+                if (j < WORKER_DPLY_PERIOD_S) {
+                    query_cnt_s += ws->recent_request_cnt [tmp_idx].cnt;
+                }
+            }
+
+            tmp_idx = get_dec_qps_index(tmp_idx);
+            past   -= 1;
+        }
+    }
+
+    b->last = ngx_sprintf(b->last, HTML_SEC_WAR_COL_1_C);
+    b->last = ngx_sprintf(b->last, HTML_SEC_WAR_COL_2,
+        WORKER_DPLY_PERIOD_S, (float)query_cnt_s / (float)WORKER_DPLY_PERIOD_L,
+        WORKER_DPLY_PERIOD_L, (float)query_cnt_l / (float)WORKER_DPLY_PERIOD_L,
+        WORKER_DPLY_PERIOD_L, WORKER_DPLY_PERIOD_S,
+        (float)query_cnt_l * 100 / (query_cnt_l + query_cnt_s),
+        (float)query_cnt_s * 100 / (query_cnt_l + query_cnt_s)
+    );
+    b->last = ngx_sprintf(b->last, HTML_SEC_WAR_CLOSE);
+
+    c->buf  = b;
+    c->next = NULL;
+
+    return c;
+}
+
 
 static inline  ngx_chain_t *
 get_last_chain_from_request(ngx_chain_t *c)
@@ -697,6 +809,15 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
     mc = put_section_row_basic_status(r);
     if (mc == NULL) {
         servats_log_d0(r, "Could not generate basic status content row!");
+
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+    lc->next = mc;
+    lc = get_last_chain_from_request(mc);
+
+    mc = put_section_row_war_status(r);
+    if (mc == NULL) {
+        servats_log_d0(r, "Could not generate worker/request content row!");
 
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }

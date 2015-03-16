@@ -30,7 +30,10 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("HTTP Servats Module/1.0.0-alpha1")
         end
         it 'should contain active connections of 1' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("<dt>Active Connections</dt>\n               <dd>1</dd>");
+            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("<h3>Workers</h3>");
+        end
+        it 'should contain workers' do
+            expect(Curl.get('http://127.0.0.1:8888/servats_user_theme').body).to include("<h3>Requests Over Time</h3>");
         end
     end
 end

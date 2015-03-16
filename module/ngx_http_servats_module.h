@@ -32,7 +32,7 @@ static  char      *ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *paren
  * Calculates the length of a NULL-terminated string. It is ugly having to
  * remember to subtract 1 from the size of result.
  */
-#define ngx_sizeof_ssz(_s) (sizeof(_s) - 1)
+#define ngx_sizeof_ssz(_s) (sizeof(_s))
 
 
 /**
