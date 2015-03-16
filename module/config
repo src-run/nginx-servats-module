@@ -1,0 +1,8 @@
+have=NGX_SERVATS . auto/have
+
+ngx_addon_name=ngx_http_servats_module
+HTTP_MODULES="$HTTP_MODULES ngx_http_servats_module"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_servats_module.c"
+NGX_ADDON_DEPS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_servats_module.h"
+NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/template/ngx_http_servats_consts.h"
+NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/template/ngx_http_servats_html_tpls.h"
