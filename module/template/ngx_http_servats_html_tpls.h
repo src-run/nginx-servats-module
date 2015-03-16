@@ -182,7 +182,38 @@
 #define  HTML_BD_JSE_INT_CHART2 "        var timeChartCtx = $(\"#stats-requests-by-time-chart\").get(0).getContext(\"2d\");\n" \
                                 "        var timeChart = new Chart(timeChartCtx).Bar(timeChartData);\n"
 
-#define  HTML_BD_JSE_INT_CLOSE  "    </script>\n"
+#define  HTML_BD_JSE_INT_CLOSE  "        $(window).load(function(){\n" \
+                                "            (function () {\n" \
+                                "                $('.request-gzipr').each(function(){\n" \
+                                "                    el = $(this);\n" \
+                                "                    if (el.html() == '-1.00') { el.html('<span class=\"label label-default\">n/a</span>'); }\n" \
+                                "                });\n" \
+                                "                $('.request-upstream-time').each(function(){\n" \
+                                "                    el = $(this);\n" \
+                                "                    if (el.html() == '-1') { el.html('<span class=\"label label-default\">n/a</span>'); }\n" \
+                                "                });\n" \
+                                "                $('.worker-operation span, .request-operation span').each(function(){\n" \
+                                "                    el = $(this);\n" \
+                                "                    if (el.html() == 'W') {\n" \
+                                "                        el.removeClass('label-info'); el.addClass('label-success');\n" \
+                                "                        el.attr('title', 'Sending reply');\n" \
+                                "                    } else if (el.html() == 'R') {\n" \
+                                "                        el.attr('title', 'Reading request');\n" \
+                                "                    } else if (el.html() == 'L') {\n" \
+                                "                        el.removeClass('label-info'); el.addClass('label-danger');\n" \
+                                "                        el.attr('title', 'Logging');\n" \
+                                "                    } else if (el.html() == 'I') {\n" \
+                                "                        el.removeClass('label-info'); el.addClass('label-warning');\n" \
+                                "                        el.attr('title', 'Inactive connection');\n" \
+                                "                    } else if (el.html() == '-') {\n" \
+                                "                        el.removeClass('label-info'); el.addClass('label-default');\n" \
+                                "                        el.attr('title', 'Waiting for request');\n" \
+                                "                    }\n" \
+                                "                    el.tooltip({placement: 'right'});\n" \
+                                "                });\n" \
+                                "            })();\n" \
+                                "        });\n" \
+                                "    </script>\n"
 
 #define  HTML_BD_JSE_THEME_USER "    <script src=\"%s\"></script>\n"
 
@@ -274,12 +305,12 @@
                                 "               <tbody>\n"
 
 #define  HTML_SEC_WAR_COL_1_ROW "                 <tr>\n" \
-                                "                   <td> %4d </td>\n" \
-                                "                   <td> %5d </td>\n" \
-                                "                   <td> %d </td>\n" \
-                                "                   <td><span class=\"label label-default\"> %c </span></td>\n" \
-                                "                   <td> %.2f </td>\n" \
-                                "                   <td> %.2f </td>\n" \
+                                "                   <td>%4d</td>\n" \
+                                "                   <td>%5d</td>\n" \
+                                "                   <td>%d</td>\n" \
+                                "                   <td class=\"worker-operation\"><span class=\"label label-info\">%c</span></td>\n" \
+                                "                   <td>%.2f</td>\n" \
+                                "                   <td>%.2f</td>\n" \
                                 "                 </tr>\n"
 
 #define  HTML_SEC_WAR_COL_1_C   "               </tbody>\n" \
@@ -294,9 +325,9 @@
                                 "            <div class=\"col-md-6 col-md-offset-0 col-sm-6 col-sm-offset-3\">\n" \
                                 "              <dl class=\"dl-horizontal\">\n" \
                                 "                <dt>Last %2d Seconds</dt>\n" \
-                                "                  <dd>%.02f</dd>\n" \
+                                "                  <dd>%.02f/sec</dd>\n" \
                                 "                <dt>Last %2d Seconds</dt>\n" \
-                                "                  <dd>%.02f</dd>\n" \
+                                "                  <dd>%.02f/sec</dd>\n" \
                                 "              </dl>\n" \
                                 "            </div>\n" \
                                 "            <div class=\"col-md-4 col-md-offset-1 col-sm-6 col-sm-offset-3 has-chart\">\n" \
@@ -307,7 +338,7 @@
                                 "            <script>\n" \
                                 "            var timeChartData = {\n" \
                                 "              scaleOverride: 100,\n" \
-                                "              labels: [\"%2d s\", \"%2d s\"],\n" \
+                                "              labels: [\"%% / %2ds\", \"%% / %2ds\"],\n" \
                                 "              datasets: [\n" \
                                 "                {\n" \
                                 "                  fillColor: \"#5AD3D1\",\n" \
@@ -324,6 +355,48 @@
 
 #define  HTML_SEC_WAR_CLOSE     "      </div>\n"
 
+#define  HTML_SEC_WC_START      "      <section id=\"stats-request\">\n" \
+                                "        <h3>Requests</h3>\n" \
+                                "        <div class=\"table-wrapper\">\n" \
+                                "          <table class=\"table table-striped\">\n" \
+                                "            <thead>\n" \
+                                "              <tr>\n" \
+                                "                <th>Worker</th>\n" \
+                                "                <th>Requests</th>\n" \
+                                "                <th>Operation</th>\n" \
+                                "                <th>Bytes</th>\n" \
+                                "                <th>Client</th>\n" \
+                                "                <th>Servername</th>\n" \
+                                "                <th>Gzip Ratio</th>\n" \
+                                "                <th>Age</th>\n" \
+                                "                <th>Status</th>\n" \
+                                "                <th>Time</th>\n" \
+                                "                <th>Proxy Time</th>\n" \
+                                "                <th>Request</th>\n" \
+                                "              </tr>\n" \
+                                "            </thead>\n" \
+                                "            <tbody>\n"
+
+#define  HTML_SEC_WC_ROW        "              <tr>\n" \
+                                "                <td>%4d-%04d</td>\n" \
+                                "                <td>%d</td>\n" \
+                                "                <td class=\"request-operation\"><span class=\"label label-info\">%c</span></td>\n" \
+                                "                <td>%d</td>\n" \
+                                "                <td>%s</td>\n" \
+                                "                <td>%s</td>\n" \
+                                "                <td class=\"request-gzipr\">%.02f</td>\n" \
+                                "                <td>%d</td>\n" \
+                                "                <td class=\"request-return\"><span class=\"label label-warning\">%ui</span></td>\n" \
+                                "                <td>%d</td>\n" \
+                                "                <td class=\"request-upstream-time\">%d</td>\n" \
+                                "                <td>%s</td>\n" \
+                                "              </tr>\n"
+
+#define  HTML_SEC_WC_CLOSE      "            </tbody>\n" \
+                                "          </table>\n" \
+                                "        </div>\n" \
+                                "      </section>\n"
+
 /**
  * Section: Footer fragments
  */
@@ -334,125 +407,6 @@
 
 #define  HTML_SEC_FT_CLOSE      "      </div>\n" \
                                 "    </footer>\n"
-
-
-/**
- * Collection of body content (BC) fragments
- */
-#define  BC_SERVER_INFO         "<h1>Nginx Server Status for %s</h1>\n" \
-                                "<dl>\n" \
-                                "  <dt>Server Version</dt>\n" \
-                                "  <dd>Nginx/%s</dd>\n" \
-                                "  <dt>Module Version</dt>\n" \
-                                "  <dd>%s/%s</dd>\n" \
-                                "</dl>\n"
-
-#define  BC_TBL_HR_WORKER       "<br>\n" \
-                                "<br>\n" \
-                                "<table border=0>\n" \
-                                "  <tr>\n" \
-                                "    <th>Worker</th>\n" \
-                                "    <th>PID</th>\n" \
-                                "    <th>Acc</th>\n" \
-                                "    <th>Mode</th>\n" \
-                                "    <th>CPU</th>" \
-                                "    <th>Mbytes</th>\n" \
-                                "  </tr>\n"
-
-#define  BC_TBL_HR_CONNECTION   "<br>\n" \
-                                "<br>\n" \
-                                "<table class=\"sortable-onload-%s\" cellspacing=1 border=0 cellpadding=1>\n" \
-                                "  <thead>\n" \
-                                "    <tr>\n" \
-                                "      <th class=\"sortable\">Worker</th>\n" \
-                                "      <th class=\"sortable\">Acc</th>\n" \
-                                "      <th class=\"sortable\">M</th>\n" \
-                                "      <th class=\"sortable\">Bytes</th>\n" \
-                                "      <th class=\"sortable\">Client</th>\n" \
-                                "      <th class=\"sortable\">VHost</th>\n" \
-                                "      <th class=\"sortable\">Gzip Ratio</th>\n" \
-                                "      <th class=\"sortable\">SS</th>\n" \
-                                "      <th class=\"sortable\">Status</th>\n" \
-                                "      <th class=\"sortable\">TIME</th>\n" \
-                                "      <th class=\"sortable\">Proxy TIME</th>\n" \
-                                "      <th class=\"sortable\">Request</th>\n" \
-                                "    </tr>\n" \
-                                "  </thead>\n" \
-                                "<tbody>\n"
-
-#define  BC_TBL_HELP_TEXT       "<table>\n"  \
-                                "  <tr>\n" \
-                                "    <th>PID</th>\n" \
-                                "    <td>OS process ID</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>Acc</th>\n" \
-                                "    <td>Number of requests serviced with this connection slot</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>M</th>\n" \
-                                "    <td>Mode of operation</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>CPU</th>\n" \
-                                "    <td>Accumulated CPU usage in seconds</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>Gzip Ratio</th>\n" \
-                                "    <td>Ratio of original size to compressed size </td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>SS</th>\n" \
-                                "    <td>Seconds since the request completion</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>Proxy TIME</th>\n" \
-                                "    <td> Proxy response time in milliseconds. 0 means the value is less than 1 millisecond</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>TIME</th>\n" \
-                                "    <td>Response time in milliseconds. 0 means the value is less than 1 millisecond</td>\n" \
-                                "  </tr>\n" \
-                                "</table>\n"
-
-#define  BC_TBL_HELP_MODES      "<b>Mode List</b>\n" \
-                                "<br>\n" \
-                                "<table>\n" \
-                                "  <tr>\n" \
-                                "    <th>-</th>\n" \
-                                "    <td>Waiting for request</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>R</th>\n" \
-                                "    <td>Reading request</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>W</th>\n" \
-                                "    <td>Sending reply</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>L</th>\n" \
-                                "    <td>Logging</td>\n" \
-                                "  </tr>\n" \
-                                "  <tr>\n" \
-                                "    <th>I</th>\n" \
-                                "    <td>Inactive connection</td>\n" \
-                                "  </tr>\n" \
-                                "</table>\n"
-
-#define  BC_SEC_SEPARATOR       "<hr>\n"
-
-#define  BC_JSE_DPLY_DATETIME   "<script>\n" \
-                                "   (function () {\n" \
-                                "       var date = new Date();\n" \
-                                "\n" \
-                                "       function getCurrentDatetimeString() {\n" \
-                                "           document.write(date.toLocaleString());\n" \
-                                "       }\n" \
-                                "\n" \
-                                "       window.getCurrentDatetimeString = getCurrentDatetimeString;\n" \
-                                "    })();\n" \
-                                "</script>\n"
 
 
 #endif /* NGX_HTTP_SERVATS_HTML_TPLS_H_ */

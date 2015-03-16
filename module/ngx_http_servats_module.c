@@ -165,10 +165,83 @@ ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *parent, void  *child)
 /**
  * Get decending index
  */
-static inline ngx_uint_t
-get_dec_qps_index(ngx_uint_t index)
+static inline  ngx_uint_t
+get_dec_qps_index(ngx_uint_t  index)
 {
     return index == 0 ? RECENT_PERIOD - 1 : index - 1;
+}
+
+
+/**
+ * Get request argument int
+ */
+static ngx_int_t
+get_request_arg_int_from_query(ngx_http_request_t  *r, char  *name, size_t  len)
+{
+    ngx_str_t  val;
+
+    if (ngx_http_arg(r, (u_char *) name, len, &val) == NGX_OK) {
+        if (val.len == 0) {
+            return -1;
+        }
+
+        return ngx_atoi(val.data, val.len);
+    }
+    else {
+        return -1;
+    }
+}
+
+
+/**
+ * Get the seconds since the passed time
+ */
+static  ngx_int_t
+get_seconds_ago(time_t  last_sec)
+{
+    ngx_time_t  *tp;
+    ngx_int_t    sec;
+
+    tp  = ngx_timeofday();
+    sec = tp->sec - last_sec;
+    sec = sec < 0 ? 0 : sec;
+
+    return sec;
+}
+
+
+/**
+ * Return the last chain
+ */
+static inline  ngx_chain_t *
+get_last_chain(ngx_chain_t  *c)
+{
+    ngx_chain_t *last = c;
+
+    assert(last != NULL);
+
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    return last;
+}
+
+
+/**
+ * Get the length of the passed chain
+ */
+static inline  off_t
+get_chain_length(ngx_chain_t  *c)
+{
+    off_t length = 0;
+
+    while (c != NULL) {
+        length += ngx_buf_size(c->buf);
+        c = c->next;
+    }
+
+    return length;
 }
 
 
@@ -189,6 +262,41 @@ get_hostname(ngx_http_request_t  *r)
     ngx_cpystrn(hostname, ngx_cycle->hostname.data, ngx_cycle->hostname.len + 1);
 
     return hostname;
+}
+
+
+/**
+ * Get the size ratio based on the passed in and out sizes. Originally from
+ * ngx_http_gzip_ratio_variable()@ngx_http_gzip_filter_module.c
+ */
+static  float
+get_ratio_between_sizes(size_t  size_in, size_t  size_out)
+{
+    ngx_uint_t  calc_int;
+    ngx_uint_t  calc_fraction;
+    float       ratio;
+
+    ratio = 0.0;
+
+    if (size_in == 0 || size_out == 0) {
+        return ratio;
+    }
+
+    calc_int      = (ngx_uint_t) (size_in / size_out);
+    calc_fraction = (ngx_uint_t) ((size_in * 100 / size_out) % 100);
+
+    if ((size_in * 1000 / size_out) % 10 > 4) {
+        calc_fraction++;
+
+        if (calc_fraction > 99) {
+            calc_int++;
+            calc_fraction = 0;
+        }
+    }
+
+    ratio = calc_int + ((float) calc_fraction / 100.0);
+
+    return ratio;
 }
 
 
@@ -699,35 +807,130 @@ put_section_row_war_status(ngx_http_request_t  *r)
 }
 
 
-static inline  ngx_chain_t *
-get_last_chain_from_request(ngx_chain_t *c)
+static  ngx_chain_t *
+put_section_row_worker_connections(ngx_http_request_t  *r)
 {
-    ngx_chain_t *last = c;
+    ngx_chain_t    *c, *c1, *c2;
+    ngx_buf_t      *b;
+    conn_score     *cs;
+    ngx_msec_int_t  response_time;
+    ngx_uint_t      i, j, k;
+    int             active;
+    size_t          sizePerConnection;
+    size_t          sizePerWorker;
+    size_t          sizeStart;
+    size_t          sizeClose;
+    float           ratioTmp;
+    ngx_uint_t      upstreamTimeTmp;
 
-    assert(last != NULL);
+    active        = get_request_arg_int_from_query(r, "active", 6);
+    response_time = get_request_arg_int_from_query(r, "res", 3);
 
-    while (last->next != NULL) {
-        last = last->next;
+    if (response_time < 0) {
+        response_time = DEFAULT_REQ_MS_DPLY;
     }
 
-    return last;
+    sizeStart = ngx_sizeof_ssz(HTML_SEC_WC_START);
+    sizeClose = ngx_sizeof_ssz(HTML_SEC_WC_CLOSE);
+
+    sizePerConnection = ngx_sizeof_ssz(HTML_SEC_WC_ROW) +
+        4 + 4 +
+        NGX_INT64_LEN +
+        0 +
+        NGX_INT64_LEN +
+        SCORE__CLIENT_LEN +
+        SCORE__VHOST_LEN +
+        5 +
+        NGX_INT64_LEN +
+        3 +
+        NGX_INT64_LEN +
+        NGX_INT64_LEN +
+        SCORE__REQUEST_LEN;
+
+    sizePerWorker = sizePerConnection * ngx_cycle->connection_n;
+
+    b = ngx_create_temp_buf(r->pool, sizeStart + sizePerWorker);
+    if (b == NULL) {
+        return NULL;
+    }
+
+    c = c1 = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+    if (c == NULL) {
+        return NULL;
+    }
+
+    c->buf  = b;
+    c->next = NULL;
+
+    b->last = ngx_sprintf(b->last, HTML_SEC_WC_START);
+
+    for (i = 0; i < ngx_num_workers; i++) {
+        for (j = 0; j < ngx_cycle->connection_n; j++) {
+            k  = (i * ngx_cycle->connection_n) + j;
+            cs = (conn_score *) ((char *)conns + sizeof(conn_score) * k);
+
+            if (cs->response_time < response_time ||
+                '\0' == cs->client[0] ||
+                '\0' == cs->request[0] ||
+                '\0' == cs->vhost[0]) {
+                continue;
+            }
+
+            if (0 < active && 0 == cs->active) {
+                continue;
+            }
+
+            if (0 != cs->zin && 0 != cs->zout) {
+                ratioTmp = get_ratio_between_sizes(cs->zin, cs->zout);
+            }
+            else {
+                ratioTmp = -1;
+            }
+
+            if (0 <= cs->upstream_response_time) {
+                upstreamTimeTmp = cs->upstream_response_time;
+            }
+            else {
+                upstreamTimeTmp = -1;
+            }
+
+            b->last = ngx_sprintf(b->last, HTML_SEC_WC_ROW, i, j,
+                cs->access_count, cs->mode, cs->bytes_sent, cs->client,
+                cs->vhost, ratioTmp, get_seconds_ago(cs->last_used), cs->status,
+                cs->response_time, upstreamTimeTmp, cs->request);
+        }
+
+        if ((i + 1) < ngx_num_workers) {
+            b = ngx_create_temp_buf(r->pool, sizePerWorker);
+        }
+        else {
+            b = ngx_create_temp_buf(r->pool, sizeClose);
+        }
+
+        if (b == NULL) {
+            return NULL;
+        }
+
+        c2 = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+        if (c == NULL) {
+            return NULL;
+        }
+
+        c2->buf = b;
+        c2->next = NULL;
+        c1->next = c2;
+        c1 = c2;
+    }
+
+    b->last = ngx_sprintf(b->last, HTML_SEC_WC_CLOSE);
+
+    return c;
 }
 
 
-static inline  off_t
-get_chain_length(ngx_chain_t *c)
-{
-    off_t length = 0;
-
-    while (c != NULL) {
-        length += ngx_buf_size(c->buf);
-        c = c->next;
-    }
-
-    return length;
-}
-
-
+/**
+ * main handler for module
+ */
 static  ngx_int_t
 ngx_http_servats_handler(ngx_http_request_t  *r)
 {
@@ -768,7 +971,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
-    lc = get_last_chain_from_request(fc);
+    lc = get_last_chain(fc);
 
     mc = put_html_head(r, alcf);
     if (mc == NULL) {
@@ -777,7 +980,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_html_body_start(r);
     if (mc == NULL) {
@@ -786,7 +989,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_section_header(r);
     if (mc == NULL) {
@@ -795,7 +998,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_section_content_start(r);
     if (mc == NULL) {
@@ -804,7 +1007,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_section_row_basic_status(r);
     if (mc == NULL) {
@@ -813,7 +1016,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_section_row_war_status(r);
     if (mc == NULL) {
@@ -822,7 +1025,16 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
+
+    mc = put_section_row_worker_connections(r);
+    if (mc == NULL) {
+        servats_log_d0(r, "Could not generate worker/request content row!");
+
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+    lc->next = mc;
+    lc = get_last_chain(mc);
 
     mc = put_section_content_close(r);
     if (mc == NULL) {
@@ -831,7 +1043,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_section_footer(r);
     if (mc == NULL) {
@@ -840,7 +1052,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_html_body_close(r, alcf);
     if (mc == NULL) {
@@ -849,7 +1061,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     mc = put_html_root_close(r);
     if (mc == NULL) {
@@ -858,7 +1070,7 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
-    lc = get_last_chain_from_request(mc);
+    lc = get_last_chain(mc);
 
     lc->buf->last_buf = 1;
 

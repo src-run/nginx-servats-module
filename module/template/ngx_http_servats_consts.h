@@ -41,13 +41,6 @@
 
 
 /**
- * Minimum and maximum refresh header value in seconds
- */
-#define  HDR_REFRESH_MIN_SECS   0
-#define  HDR_REFRESH_MAX_SECS   60
-
-
-/**
  * Short and long periods to display for worker statistics
  */
 #define  WORKER_DPLY_PERIOD_S   10

@@ -64,4 +64,5 @@ static  char      *ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *paren
 
 #endif /* NGX_HTTP_SERVATS_MODULE_H_ */
 
+
 /* EOF */
