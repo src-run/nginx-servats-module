@@ -47,7 +47,7 @@ copyright = u'2014–2015, Rob Frawley 2nd, Scribe Inc'
 # built documents.
 #
 # The short X.Y version.
-version = '1.0.0-alpha1'
+version = '1.0.0-alpha2'
 # The full version, including alpha/beta/rc tags.
 release = version
 

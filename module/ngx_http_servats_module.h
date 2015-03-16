@@ -15,7 +15,7 @@
 /**
  * Module version string and logging name
  */
-#define  SERVATS_VERSION       	"1.0.0-alpha1"
+#define  SERVATS_VERSION       	"1.0.0-alpha2"
 #define  SERVATS_NAME     		"HTTP Servats Module"
 #define  SERVATS_IDENT			"ngx_http_servats"
 
