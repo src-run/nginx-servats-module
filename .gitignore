@@ -1,4 +1,5 @@
 /build
 /vendor
 /.bundle
+/docs/_build
 Gemfile.lock
