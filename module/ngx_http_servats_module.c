@@ -306,7 +306,7 @@ get_ratio_between_sizes(size_t  size_in, size_t  size_out)
 static  void
 set_http_header_fields(ngx_http_request_t  *r)
 {
-    r->headers_out.content_type.len  = sizeof(HEADER_CONTENT_TYPE);
+    r->headers_out.content_type.len  = ngx_sizeof_ssz(HEADER_CONTENT_TYPE);
     r->headers_out.content_type.data = (u_char *) HEADER_CONTENT_TYPE;
 }
 
@@ -320,12 +320,12 @@ put_html_root_start(ngx_http_request_t  *r)
     ngx_chain_t  *c;
     ngx_buf_t    *b;
 
-    b = ngx_create_temp_buf(r->pool, sizeof(HTML_START));
+    b = ngx_create_temp_buf(r->pool, ngx_sizeof_ssz(HTML_START));
     if (b == NULL) {
         return NULL;
     }
 
-    c = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+    c = ngx_pcalloc(r->pool, ngx_sizeof_ssz(ngx_chain_t));
     if (c == NULL) {
         return NULL;
     }
@@ -348,12 +348,12 @@ put_html_root_close(ngx_http_request_t  *r)
     ngx_chain_t  *c;
     ngx_buf_t    *b;
 
-    b = ngx_create_temp_buf(r->pool, sizeof(HTML_CLOSE));
+    b = ngx_create_temp_buf(r->pool, ngx_sizeof_ssz(HTML_CLOSE));
     if (b == NULL) {
         return NULL;
     }
 
-    c = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+    c = ngx_pcalloc(r->pool, ngx_sizeof_ssz(ngx_chain_t));
     if (c == NULL) {
         return NULL;
     }
@@ -376,12 +376,12 @@ put_html_body_start(ngx_http_request_t  *r)
     ngx_chain_t  *c;
     ngx_buf_t    *b;
 
-    b = ngx_create_temp_buf(r->pool, sizeof(HTML_BD_START));
+    b = ngx_create_temp_buf(r->pool, ngx_sizeof_ssz(HTML_BD_START));
     if (b == NULL) {
         return NULL;
     }
 
-    c = ngx_pcalloc(r->pool, sizeof(ngx_chain_t));
+    c = ngx_pcalloc(r->pool, ngx_sizeof_ssz(ngx_chain_t));
     if (c == NULL) {
         return NULL;
     }
@@ -405,19 +405,19 @@ put_html_body_close(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
     ngx_buf_t    *b;
     ngx_int_t     size;
 
-    size = sizeof(HTML_BD_END);
+    size = ngx_sizeof_ssz(HTML_BD_END);
 
     if (!(alcf->theme_user_jse.len > 0) || alcf->theme_both) {
-        size += sizeof(HTML_BD_JSE_INT_START) +
-            sizeof(HTML_BD_JSE_INT_TIME) +
-            sizeof(HTML_BD_JSE_INT_CHART1) +
-            sizeof(HTML_BD_JSE_INT_CHART2) +
-            sizeof(HTML_BD_JSE_INT_CLOSE) +
+        size += ngx_sizeof_ssz(HTML_BD_JSE_INT_START) +
+            ngx_sizeof_ssz(HTML_BD_JSE_INT_TIME) +
+            ngx_sizeof_ssz(HTML_BD_JSE_INT_CHART1) +
+            ngx_sizeof_ssz(HTML_BD_JSE_INT_CHART2) +
+            ngx_sizeof_ssz(HTML_BD_JSE_INT_CLOSE) +
             (NGX_ATOMIC_T_LEN * 3);
     }
 
     if (alcf->theme_user_jse.len > 0) {
-        size += sizeof(HTML_BD_JSE_THEME_USER) + alcf->theme_user_jse.len;
+        size += ngx_sizeof_ssz(HTML_BD_JSE_THEME_USER) + alcf->theme_user_jse.len;
     }
 
     b = ngx_create_temp_buf(r->pool, size);
@@ -466,23 +466,23 @@ put_html_head(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
     ngx_buf_t    *b;
     ngx_int_t     size;
 
-    size = sizeof(HTML_HR_START) +
-        sizeof(HTML_HR_TITLE) +
-        sizeof(SERVATS_NAME) +
-        sizeof(HTML_HR_END);
+    size = ngx_sizeof_ssz(HTML_HR_START) +
+        ngx_sizeof_ssz(HTML_HR_TITLE) +
+        ngx_sizeof_ssz(SERVATS_NAME) +
+        ngx_sizeof_ssz(HTML_HR_END);
 
     if (!(alcf->theme_user_jse.len > 0) || alcf->theme_both) {
-        size += sizeof(HTML_HR_CSS_THEME_INT);
+        size += ngx_sizeof_ssz(HTML_HR_CSS_THEME_INT);
     }
     if (alcf->theme_user_css.len > 0) {
-        size += sizeof(HTML_HR_CSS_THEME_USER) + alcf->theme_user_css.len;
+        size += ngx_sizeof_ssz(HTML_HR_CSS_THEME_USER) + alcf->theme_user_css.len;
     }
 
     if (!(alcf->theme_user_jse.len > 0) || alcf->theme_both) {
-        size += sizeof(HTML_HR_JSI_THEME_INT);
+        size += ngx_sizeof_ssz(HTML_HR_JSI_THEME_INT);
     }
     if (alcf->theme_user_jsi.len > 0) {
-        size += sizeof(HTML_HR_JSI_THEME_USER) + alcf->theme_user_jsi.len;
+        size += ngx_sizeof_ssz(HTML_HR_JSI_THEME_USER) + alcf->theme_user_jsi.len;
     }
 
     b = ngx_create_temp_buf(r->pool, size);
@@ -537,14 +537,14 @@ put_section_header(ngx_http_request_t  *r)
         return NULL;
     }
 
-    size = sizeof(HTML_SEC_HR_START) +
-        sizeof(HTML_SEC_HR_CLOSE) +
-        sizeof(HTML_SEC_HR_HEADING) +
-        sizeof(HTML_SEC_HR_VERSION) +
-        sizeof(hostname) +
-        sizeof(NGINX_VERSION) +
-        sizeof(SERVATS_NAME) +
-        sizeof(SERVATS_VERSION);
+    size = ngx_sizeof_ssz(HTML_SEC_HR_START) +
+        ngx_sizeof_ssz(HTML_SEC_HR_CLOSE) +
+        ngx_sizeof_ssz(HTML_SEC_HR_HEADING) +
+        ngx_sizeof_ssz(HTML_SEC_HR_VERSION) +
+        ngx_sizeof_ssz(hostname) +
+        ngx_sizeof_ssz(NGINX_VERSION) +
+        ngx_sizeof_ssz(SERVATS_NAME) +
+        ngx_sizeof_ssz(SERVATS_VERSION) + 5;
 
     b = ngx_create_temp_buf(r->pool, size);
     if (b == NULL) {
@@ -575,7 +575,7 @@ put_section_content_start(ngx_http_request_t  *r)
     ngx_chain_t  *c;
     ngx_buf_t    *b;
 
-    b = ngx_create_temp_buf(r->pool, sizeof(HTML_SEC_CONTENT_START));
+    b = ngx_create_temp_buf(r->pool, ngx_sizeof_ssz(HTML_SEC_CONTENT_START));
     if (b == NULL) {
         return NULL;
     }
@@ -600,7 +600,7 @@ put_section_content_close(ngx_http_request_t  *r)
     ngx_chain_t  *c;
     ngx_buf_t    *b;
 
-    b = ngx_create_temp_buf(r->pool, sizeof(HTML_SEC_CONTENT_CLOSE));
+    b = ngx_create_temp_buf(r->pool, ngx_sizeof_ssz(HTML_SEC_CONTENT_CLOSE));
     if (b == NULL) {
         return NULL;
     }
@@ -626,9 +626,9 @@ put_section_footer(ngx_http_request_t  *r)
     ngx_buf_t    *b;
     size_t        size;
 
-    size = sizeof(HTML_SEC_FT_START) +
-        sizeof(HTML_SEC_FT_CLOSE) +
-        sizeof(HTML_SEC_FT_TIME);
+    size = ngx_sizeof_ssz(HTML_SEC_FT_START) +
+        ngx_sizeof_ssz(HTML_SEC_FT_CLOSE) +
+        ngx_sizeof_ssz(HTML_SEC_FT_TIME);
 
     b = ngx_create_temp_buf(r->pool, size);
     if (b == NULL) {
@@ -671,10 +671,10 @@ put_section_row_basic_status(ngx_http_request_t  *r)
     reqs_reading  = *ngx_stat_reading;
     reqs_writing  = *ngx_stat_writing;
 
-    size = sizeof(HTML_SEC_BASIC_START) +
-        sizeof(HTML_SEC_BASIC_COL_1) +
-        sizeof(HTML_SEC_BASIC_COL_2) +
-        sizeof(HTML_SEC_BASIC_CLOSE) +
+    size = ngx_sizeof_ssz(HTML_SEC_BASIC_START) +
+        ngx_sizeof_ssz(HTML_SEC_BASIC_COL_1) +
+        ngx_sizeof_ssz(HTML_SEC_BASIC_COL_2) +
+        ngx_sizeof_ssz(HTML_SEC_BASIC_CLOSE) +
         (NGX_ATOMIC_T_LEN * 7);
 
     b = ngx_create_temp_buf(r->pool, size);
@@ -732,20 +732,20 @@ put_section_row_war_status(ngx_http_request_t  *r)
     current    -= 1;
     index       = current & RECENT_MASK;
 
-    workerSize = sizeof(HTML_SEC_WAR_COL_1_ROW) +
+    workerSize = ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_ROW) +
         4 + 5 + 5 + 1 +
         (NGX_INT64_LEN * 2);
 
-    size = sizeof(HTML_SEC_WAR_START) +
-        sizeof(HTML_SEC_WAR_COL_1_S) +
+    size = ngx_sizeof_ssz(HTML_SEC_WAR_START) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_S) +
         (workerSize * ngx_num_workers) +
-        sizeof(HTML_SEC_WAR_COL_1_C) +
-        sizeof(HTML_SEC_WAR_COL_2) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_1_C) +
+        ngx_sizeof_ssz(HTML_SEC_WAR_COL_2) +
         7 + sizeof(WORKER_DPLY_PERIOD_S) +
         7 + sizeof(WORKER_DPLY_PERIOD_L) +
         7 + sizeof(WORKER_DPLY_PERIOD_S) +
         7 + sizeof(WORKER_DPLY_PERIOD_L) +
-        sizeof(HTML_SEC_WAR_CLOSE);
+        ngx_sizeof_ssz(HTML_SEC_WAR_CLOSE);
 
     b = ngx_create_temp_buf(r->pool, size);
     if (b == NULL) {
@@ -823,10 +823,10 @@ put_section_row_worker_connections(ngx_http_request_t  *r)
         response_time = DEFAULT_REQ_MS_DPLY;
     }
 
-    sizeStart = sizeof(HTML_SEC_WC_START);
-    sizeClose = sizeof(HTML_SEC_WC_CLOSE);
+    sizeStart = ngx_sizeof_ssz(HTML_SEC_WC_START);
+    sizeClose = ngx_sizeof_ssz(HTML_SEC_WC_CLOSE);
 
-    sizePerConnection = sizeof(HTML_SEC_WC_ROW) +
+    sizePerConnection = ngx_sizeof_ssz(HTML_SEC_WC_ROW) +
         4 + 4 +
         NGX_INT64_LEN +
         0 +
