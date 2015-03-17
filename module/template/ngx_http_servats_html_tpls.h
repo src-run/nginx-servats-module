@@ -78,7 +78,7 @@
                                 "       font-size: 15px;\n" \
                                 "       line-height: 1.42857143;\n" \
                                 "       color: #2c3e50;\n" \
-                                "       width: 100%;\n" \
+                                "       width: 100%%;\n" \
                                 "       opacity: 0\n" \
                                 "      }\n" \
                                 "      section h3 {\n" \

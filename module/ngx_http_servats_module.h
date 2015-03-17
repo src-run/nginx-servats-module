@@ -28,13 +28,6 @@ static  void      *ngx_http_servats_create_loc_conf(ngx_conf_t  *cf);
 static  char      *ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *parent, void  *child);
 
 
-/**
- * Calculates the length of a NULL-terminated string. It is ugly having to
- * remember to subtract 1 from the size of result.
- */
-#define ngx_sizeof_ssz(_s) (sizeof(_s))
-
-
 #endif /* NGX_HTTP_SERVATS_MODULE_H_ */
 
 
