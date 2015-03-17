@@ -30,7 +30,7 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("HTTP Servats Module/1.0.0-alpha2")
         end
         it 'should contain active connections of 1' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<dt>Active Connections</dt>\n               <dd>1</dd>");
+            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<dt>Active Connections</dt>\n                    <dd>1</dd>");
         end
         it 'should contain overview content block' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Overview</h3>");
@@ -45,7 +45,7 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Requests Over Time</h3>");
         end
         it 'should contain requests content block' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Requests</h3>");
+            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<h3>Connections</h3>");
         end
         it 'should have internal stylesheets' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include('<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">');

@@ -31,12 +31,14 @@
 
 #define  HTML_HR_JSI_THEME_INT  "    <script src=\"//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js\"></script>\n" \
                                 "    <script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js\"></script>\n" \
-                                "    <script src=\"//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js\"></script>\n"
+                                "    <script src=\"//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js\"></script>\n" \
+                                "    <script src=\"//cdnjs.cloudflare.com/ajax/libs/stupidtable/0.0.1/stupidtable.min.js\"></script>\n"
 
 #define  HTML_HR_JSI_THEME_USER "    <script src=\"%s\"></script>\n"
 
 #define  HTML_HR_CSS_THEME_INT  "    <link rel=\"stylesheet\" href=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css\">\n" \
                                 "    <link rel=\"stylesheet\" href=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css\">\n" \
+                                "    <link rel=\"stylesheet\" href=\"//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css\">\n" \
                                 "    <link rel=\"stylesheet\" href=\"//fonts.googleapis.com/css?family=Bitter:400,400italic|Source+Sans+Pro:300,400,600,300italic,400italic|Ubuntu+Mono:400,700,400italic|Roboto+Condensed:300italic,400italic,700,300,400\">\n" \
                                 "    <style type=\"text/css\">" \
                                 "      body {\n" \
@@ -77,6 +79,7 @@
                                 "       line-height: 1.42857143;\n" \
                                 "       color: #2c3e50;\n" \
                                 "       width: 100%;\n" \
+                                "       opacity: 0\n" \
                                 "      }\n" \
                                 "      section h3 {\n" \
                                 "       transition: background-color 1s;\n" \
@@ -104,9 +107,6 @@
                                 "      .request-operation, .worker-operation {\n" \
                                 "       margin: 20px 20px -10px 20px;\n" \
                                 "      }\n" \
-                                "      .request-return {\n" \
-                                "       font-family:Ubuntu Mono;\n" \
-                                "      }\n" \
                                 "      .has-chart {\n" \
                                 "       text-align:center;\n" \
                                 "      }\n" \
@@ -115,6 +115,17 @@
                                 "      }\n" \
                                 "      .table-wrapper {\n" \
                                 "       margin: 20px 20px -10px 20px;\n" \
+                                "      }\n" \
+                                "      .fa-h3 {\n" \
+                                "       opacity: 0.8;\n" \
+                                "       padding-right: 3px\n" \
+                                "      }\n" \
+                                "      th[data-sort]:hover {\n" \
+                                "       text-decoration: underline;\n" \
+                                "       cursor: pointer;\n" \
+                                "      }\n" \
+                                "      th .arrow {\n" \
+                                "       padding-left: 3px;\n" \
                                 "      }\n" \
                                 "      footer {\n" \
                                 "       background-color:rgba(78, 44, 80, 0.19);\n" \
@@ -192,25 +203,82 @@
                                 "                    el = $(this);\n" \
                                 "                    if (el.html() == '-1') { el.html('<span class=\"label label-default\">n/a</span>'); }\n" \
                                 "                });\n" \
-                                "                $('.worker-operation span, .request-operation span').each(function(){\n" \
+                                "                var operationHandler = function() {\n" \
+                                "                  $('.worker-operation span, .request-operation span').each(function(){\n" \
                                 "                    el = $(this);\n" \
                                 "                    if (el.html() == 'W') {\n" \
                                 "                        el.removeClass('label-info'); el.addClass('label-success');\n" \
                                 "                        el.attr('title', 'Sending reply');\n" \
+                                "                        el.html('<span class=\"fa fa-fw fa-chevron-down\"></span>');\n" \
                                 "                    } else if (el.html() == 'R') {\n" \
                                 "                        el.attr('title', 'Reading request');\n" \
+                                "                        el.html('<span class=\"fa fa-fw fa-chevron-up\"></span>');\n" \
                                 "                    } else if (el.html() == 'L') {\n" \
                                 "                        el.removeClass('label-info'); el.addClass('label-danger');\n" \
                                 "                        el.attr('title', 'Logging');\n" \
+                                "                        el.html('<span class=\"fa fa-fw fa-file\"></span>');\n" \
                                 "                    } else if (el.html() == 'I') {\n" \
-                                "                        el.removeClass('label-info'); el.addClass('label-warning');\n" \
-                                "                        el.attr('title', 'Inactive connection');\n" \
-                                "                    } else if (el.html() == '-') {\n" \
                                 "                        el.removeClass('label-info'); el.addClass('label-default');\n" \
+                                "                        el.attr('title', 'Inactive connection');\n" \
+                                "                        el.html('<span class=\"fa fa-fw fa-ellipsis-h\"></span>');\n" \
+                                "                    } else if (el.html() == '-') {\n" \
+                                "                        el.removeClass('label-info'); el.addClass('label-warning');\n" \
                                 "                        el.attr('title', 'Waiting for request');\n" \
+                                "                        el.html('<span class=\"fa fa-fw fa-circle-o\"></span>');\n" \
                                 "                    }\n" \
                                 "                    el.tooltip({placement: 'right'});\n" \
-                                "                });\n" \
+                                "                  });\n" \
+                                "                };\n" \
+                                "                function getHttpResponseCodeLabel(code) {\n" \
+                                "                  var labelPost = '';\n" \
+                                "                  if (code >= 200 && code < 300) { labelPost = 'success'; } else\n" \
+                                "                  if (code >= 300 && code < 400) { labelPost = 'warning'; } else\n" \
+                                "                  if (code >= 400 && code < 600) { labelPost = 'danger';  }\n" \
+                                "                  else { labelPost = 'default'; }\n" \
+                                "                  return 'label-' + labelPost;\n" \
+                                "                }\n" \
+                                "                var httpResponseCodes = {\"100\": \"Continue\", \"101\": \"Switching Protocols\", \"102\": \"Processing\", \"200\": \"OK\", \"201\": \"Created\", \"202\": \"Accepted\", \"203\": \"Non-Authoritative Information\", \"204\": \"No Content\", \"205\": \"Reset Content\", \"206\": \"Partial Content\", \"207\": \"Multi-Status\", \"208\": \"Already Reported\", \"226\": \"IM Used\", \"300\": \"Multiple Choices\", \"301\": \"Moved Permanently\", \"302\": \"Found\", \"303\": \"See Other\", \"304\": \"Not Modified\", \"305\": \"Use Proxy\", \"306\": \"Switch Proxy\", \"307\": \"Temporary Redirect\", \"400\": \"Bad Request\", \"401\": \"Unauthorized\", \"402\": \"Payment Required\", \"403\": \"Forbidden\", \"404\": \"Not Found\", \"405\": \"Method Not Allowed\", \"406\": \"Not Acceptable\", \"407\": \"Proxy Authentication Required\", \"408\": \"Request Timeout\", \"409\": \"Conflict\", \"410\": \"Gone\", \"500\": \"Internal Server Error\", \"501\": \"Not Implemented\", \"502\": \"Bad Gateway\", \"503\": \"Service Unavailable\", \"504\": \"Gateway Timeout\", \"505\": \"HTTP Version Not Supported\"};\n" \
+                                "                function getHttpRespondeCode(code) {\n" \
+                                "                    if (code in httpResponseCodes) {\n" \
+                                "                        return 'Code ' + code + ': ' + httpResponseCodes[code];\n" \
+                                "                    } else {\n" \
+                                "                        return 'Code ' + code + ': Unknown Response Code';\n" \
+                                "                    }\n" \
+                                "                }\n" \
+                                "                var responseTooltipHandler = function() {\n" \
+                                "                  $('.request-return').each(function(){\n" \
+                                "                    var elSpan        = $(this).find('span');\n" \
+                                "                    var responseCode  = elSpan.html();\n" \
+                                "                    var responseLabel = getHttpResponseCodeLabel(responseCode);\n" \
+                                "                    var responseMsg   = getHttpRespondeCode(responseCode);\n" \
+                                "                    elSpan.attr('title', responseMsg);\n" \
+                                "                    elSpan.removeClass('label-info'); elSpan.addClass(responseLabel);\n" \
+                                "                    elSpan.tooltip({placement: 'right'});\n" \
+                                "                  });\n" \
+                                "                };\n" \
+                                "                var atferTableSortHandler = function (event, data) {\n" \
+                                "                    var th = $(this).find('th');\n" \
+                                "                    th.find('.arrow').remove();\n" \
+                                "                    var dir = $.fn.stupidtable.dir;\n" \
+                                "                    var arrow = data.direction === dir.ASC ? 'fa-sort-asc' : 'fa-sort-desc';\n" \
+                                "                    th.eq(data.column).append('<span class=\"arrow fa ' + arrow + '\"></span>');\n" \
+                                "                    operationHandler();\n" \
+                                "                    responseTooltipHandler();\n" \
+                                "                }\n" \
+                                "                var tableStatsRequest = $('#stats-request-table').stupidtable();\n" \
+                                "                tableStatsRequest.on('aftertablesort', atferTableSortHandler);\n" \
+                                "                var tableStatsWorkers = $('#stats-workers-table').stupidtable();\n" \
+                                "                tableStatsWorkers.on('aftertablesort', atferTableSortHandler);\n" \
+                                "                operationHandler();\n" \
+                                "                responseTooltipHandler();\n" \
+                                "                $('#stats-overview h3').html('<i class=\"fa-h3 fa fa-tachometer\"></i> ' + $('#stats-overview h3').html());\n" \
+                                "                $('#stats-states h3').html('<i class=\"fa-h3 fa fa-pie-chart\"></i> ' + $('#stats-states h3').html());\n" \
+                                "                $('#stats-workers h3').html('<i class=\"fa-h3 fa fa-server\"></i> ' + $('#stats-workers h3').html());\n" \
+                                "                $('#stats-requests-by-time h3').html('<i class=\"fa-h3 fa fa-bar-chart\"></i> ' + $('#stats-requests-by-time h3').html());\n" \
+                                "                $('#stats-request h3').html('<i class=\"fa-h3 fa fa-exchange\"></i> ' + $('#stats-request h3').html());\n" \
+                                "            })();\n" \
+                                "            (function () {\n" \
+                                "                $('section').animate({opacity: 1}, 500);\n" \
                                 "            })();\n" \
                                 "        });\n" \
                                 "    </script>\n"
@@ -251,14 +319,18 @@
 #define  HTML_SEC_BASIC_COL_1   "        <div  class=\"col-md-6\">\n" \
                                 "          <section id=\"stats-overview\">\n" \
                                 "            <h3>Overview</h3>\n" \
-                                "            <dl class=\"dl-horizontal\">\n" \
-                                "             <dt>Active Connections</dt>\n" \
-                                "               <dd>%uA</dd>\n" \
-                                "             <dt>Accepted/Handled</dt>\n" \
-                                "               <dd>%uA of %uA</dd>\n" \
-                                "             <dt>Total Requests</dt>\n" \
-                                "               <dd>%uA</dd>\n" \
-                                "            </dl>\n" \
+                                "            <div class=\"row\">\n" \
+                                "              <div class=\"col-md-8 col-md-offset-2 col-sm-6 col-sm-offset-3\">\n" \
+                                "                <dl class=\"dl-horizontal\">\n" \
+                                "                  <dt>Active Connections</dt>\n" \
+                                "                    <dd>%uA</dd>\n" \
+                                "                  <dt>Accepted/Handled</dt>\n" \
+                                "                    <dd>%uA of %uA</dd>\n" \
+                                "                  <dt>Total Requests</dt>\n" \
+                                "                    <dd>%uA</dd>\n" \
+                                "                </dl>\n" \
+                                "              </div>\n" \
+                                "            </div>\n" \
                                 "          </section>\n" \
                                 "        </div>\n"
 
@@ -291,15 +363,15 @@
                                 "          <section id=\"stats-workers\">\n" \
                                 "            <h3>Workers</h3>\n" \
                                 "            <div class=\"table-wrapper\">\n" \
-                                "              <table class=\"table table-striped\">\n" \
+                                "              <table id=\"stats-workers-table\" class=\"table table-striped\">\n" \
                                 "                <thead>\n" \
                                 "                 <tr>\n" \
-                                "                   <th>Worker</th>\n" \
-                                "                   <th>PID</th>\n" \
-                                "                   <th>Requests</th>\n" \
-                                "                   <th>Operation</th>\n" \
-                                "                   <th>CPU</th>\n" \
-                                "                   <th>Megabytes</th>\n" \
+                                "                   <th data-sort=\"int\">Worker</th>\n" \
+                                "                   <th data-sort=\"int\">PID</th>\n" \
+                                "                   <th data-sort=\"int\">Requests</th>\n" \
+                                "                   <th>Mode</th>\n" \
+                                "                   <th data-sort=\"float\">CPU</th>\n" \
+                                "                   <th data-sort=\"float\">MB</th>\n" \
                                 "                 </tr>\n" \
                                 "               </thead>\n" \
                                 "               <tbody>\n"
@@ -356,23 +428,23 @@
 #define  HTML_SEC_WAR_CLOSE     "      </div>\n"
 
 #define  HTML_SEC_WC_START      "      <section id=\"stats-request\">\n" \
-                                "        <h3>Requests</h3>\n" \
+                                "        <h3>Connections</h3>\n" \
                                 "        <div class=\"table-wrapper\">\n" \
-                                "          <table class=\"table table-striped\">\n" \
+                                "          <table id=\"stats-request-table\" class=\"table table-striped\">\n" \
                                 "            <thead>\n" \
                                 "              <tr>\n" \
-                                "                <th>Worker</th>\n" \
-                                "                <th>Requests</th>\n" \
-                                "                <th>Operation</th>\n" \
-                                "                <th>Bytes</th>\n" \
-                                "                <th>Client</th>\n" \
-                                "                <th>Servername</th>\n" \
-                                "                <th>Gzip Ratio</th>\n" \
-                                "                <th>Age</th>\n" \
-                                "                <th>Status</th>\n" \
-                                "                <th>Time</th>\n" \
-                                "                <th>Proxy Time</th>\n" \
-                                "                <th>Request</th>\n" \
+                                "                <th data-sort=\"string\">Worker</th>\n" \
+                                "                <th data-sort=\"int\">Reqests</th>\n" \
+                                "                <th>Mode</th>\n" \
+                                "                <th data-sort=\"int\">Bytes</th>\n" \
+                                "                <th data-sort=\"string\">Client</th>\n" \
+                                "                <th data-sort=\"string\">Server</th>\n" \
+                                "                <th data-sort=\"float\">GZip</th>\n" \
+                                "                <th data-sort=\"int\">Age</th>\n" \
+                                "                <th data-sort=\"string\">Code</th>\n" \
+                                "                <th data-sort=\"int\">T</th>\n" \
+                                "                <th data-sort=\"int\">ProxyT</th>\n" \
+                                "                <th data-sort=\"string\">URI</th>\n" \
                                 "              </tr>\n" \
                                 "            </thead>\n" \
                                 "            <tbody>\n"
@@ -386,7 +458,7 @@
                                 "                <td>%s</td>\n" \
                                 "                <td class=\"request-gzipr\">%.02f</td>\n" \
                                 "                <td>%d</td>\n" \
-                                "                <td class=\"request-return\"><span class=\"label label-warning\">%ui</span></td>\n" \
+                                "                <td class=\"request-return\"><span class=\"label label-info\">%ui</span></td>\n" \
                                 "                <td>%d</td>\n" \
                                 "                <td class=\"request-upstream-time\">%d</td>\n" \
                                 "                <td>%s</td>\n" \

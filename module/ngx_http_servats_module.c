@@ -12,7 +12,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
-#include <ngx_log.h>
 
 #include <stddef.h>
 #include <ctype.h>
@@ -418,7 +417,6 @@ put_html_body_close(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
     }
 
     if (alcf->theme_user_jse.len > 0) {
-        servats_log_d1(r, "Using external user javascript file: %s", alcf->theme_user_jse.data);
         size += ngx_sizeof_ssz(HTML_BD_JSE_THEME_USER) + alcf->theme_user_jse.len;
     }
 
@@ -474,11 +472,9 @@ put_html_head(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
         ngx_sizeof_ssz(HTML_HR_END);
 
     if (!(alcf->theme_user_jse.len > 0) || alcf->theme_both) {
-        servats_log_d0(r, "Using module provided theme.");
         size += ngx_sizeof_ssz(HTML_HR_CSS_THEME_INT);
     }
     if (alcf->theme_user_css.len > 0) {
-        servats_log_d1(r, "Using external user css file: %s", alcf->theme_user_css.data);
         size += ngx_sizeof_ssz(HTML_HR_CSS_THEME_USER) + alcf->theme_user_css.len;
     }
 
@@ -486,7 +482,6 @@ put_html_head(ngx_http_request_t  *r, ngx_http_servats_loc_conf_t  *alcf)
         size += ngx_sizeof_ssz(HTML_HR_JSI_THEME_INT);
     }
     if (alcf->theme_user_jsi.len > 0) {
-        servats_log_d1(r, "Using external user javascript library include: %s", alcf->theme_user_jsi.data);
         size += ngx_sizeof_ssz(HTML_HR_JSI_THEME_USER) + alcf->theme_user_jsi.len;
     }
 
@@ -539,8 +534,6 @@ put_section_header(ngx_http_request_t  *r)
 
     hostname = get_hostname(r);
     if (hostname == NULL) {
-        servats_log_d0(r, "Unable to determine the server hostname.");
-
         return NULL;
     }
 
@@ -941,25 +934,17 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
     ngx_http_servats_loc_conf_t  *alcf;
 
     if (r->method != NGX_HTTP_GET) {
-        servats_log_d0(r, "Declining as http method != GET.");
-
         return NGX_DECLINED;
     }
 
     alcf = ngx_http_get_module_loc_conf(r, ngx_http_servats_module);
 
     if (!alcf->enabled) {
-        servats_log_d0(r, "Declining as module is disabled.");
-
         return NGX_DECLINED;
     }
 
-    servats_log_d0(r, "Module loaded.");
-
     ret = ngx_http_discard_request_body(r);
     if (ret != NGX_OK) {
-        servats_log_d0(r, "Request body could not be disgarded!");
-
         return ret;
     }
 
@@ -967,16 +952,12 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     fc = put_html_root_start(r);
     if (fc == NULL) {
-        servats_log_d0(r, "Could not output opening HTML tags.");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc = get_last_chain(fc);
 
     mc = put_html_head(r, alcf);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate header part of report!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -984,8 +965,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_html_body_start(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate the beginning of the html body!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -993,8 +972,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_header(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate header section!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1002,8 +979,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_content_start(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate content start block!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1011,8 +986,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_row_basic_status(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate basic status content row!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1020,8 +993,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_row_war_status(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate worker/request content row!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1029,8 +1000,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_row_worker_connections(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate worker/request content row!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1038,8 +1007,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_content_close(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate content close block!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1047,8 +1014,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_section_footer(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not generate footer part of report!");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1056,8 +1021,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_html_body_close(r, alcf);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not executable javascript with closing body tag block.");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1065,8 +1028,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     mc = put_html_root_close(r);
     if (mc == NULL) {
-        servats_log_d0(r, "Could not output closing HTML tags.");
-
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     lc->next = mc;
@@ -1079,8 +1040,6 @@ ngx_http_servats_handler(ngx_http_request_t  *r)
 
     ret = ngx_http_send_header(r);
     if (NGX_ERROR == ret || NGX_OK < ret || r->header_only) {
-        servats_log_d0(r, "Could not send header!");
-
         return ret;
     }
 

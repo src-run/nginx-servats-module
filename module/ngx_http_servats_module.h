@@ -35,33 +35,6 @@ static  char      *ngx_http_servats_merge_loc_conf(ngx_conf_t  *cf, void  *paren
 #define ngx_sizeof_ssz(_s) (sizeof(_s))
 
 
-/**
- * Displays our debug log message (no parameters)
- */
-#define servats_log_d0(_r, _m) \
-		char * _m_p = (char *) malloc(1 + strlen(_m) + strlen(SERVATS_NAME) + strlen(": ")); \
-		strcpy(_m_p, SERVATS_NAME); strcat(_m_p, ": "); strcat(_m_p, _m); \
-        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, _r->connection->log, 0, _m_p)
-
-
-/**
- * Displays our debug log message (one parameter)
- */
-#define servats_log_d1(_r, _m, _p1) \
-		char * _m_p = (char *) malloc(1 + strlen(_m) + strlen(SERVATS_NAME) + strlen(": ")); \
-		strcpy(_m_p, SERVATS_NAME); strcat(_m_p, ": "); strcat(_m_p, _m); \
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, _r->connection->log, 0, _m_p, _p1)
-
-
-/**
- * Displays our debug log message (two parameters)
- */
-#define servats_log_d2(_r, _m, _p1, _p2) \
-		char * _m_p = (char *) malloc(1 + strlen(_m) + strlen(SERVATS_NAME) + strlen(": ")); \
-		strcpy(_m_p, SERVATS_NAME); strcat(_m_p, ": "); strcat(_m_p, _m); \
-        ngx_log_debug2(NGX_LOG_DEBUG_HTTP, _r->connection->log, 0, _m_p, _p1, _p2)
-
-
 #endif /* NGX_HTTP_SERVATS_MODULE_H_ */
 
 
