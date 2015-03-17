@@ -43,6 +43,8 @@ All the documentation for the *Scribe / Nginx Servats Module* is provided via
 compiled Sphinx files and hosted on `Read the Docs <https://readthedocs.org/>`_.
 You can browser the docs via the
 `website <https://nginx-servats-module.docs.scribe.tools/docs>`_ or download an
+`PDF <https://readthedocs.org/projects/nginx-servats-module/downloads/pdf/latest/>`_
+or
 `Epub <https://readthedocs.org/projects/nginx-servats-module/downloads/epub/latest/>`_
 for offline reading.
 
