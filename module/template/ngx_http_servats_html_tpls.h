@@ -362,7 +362,7 @@
 #define  HTML_SEC_WAR_COL_1_S   "        <div class=\"col-md-6\">\n" \
                                 "          <section id=\"stats-workers\">\n" \
                                 "            <h3>Workers</h3>\n" \
-                                "            <div class=\"table-wrapper\">\n" \
+                                "            <div class=\"table-wrapper table-responsive\">\n" \
                                 "              <table id=\"stats-workers-table\" class=\"table table-striped\">\n" \
                                 "                <thead>\n" \
                                 "                 <tr>\n" \
@@ -429,7 +429,7 @@
 
 #define  HTML_SEC_WC_START      "      <section id=\"stats-request\">\n" \
                                 "        <h3>Connections</h3>\n" \
-                                "        <div class=\"table-wrapper\">\n" \
+                                "        <div class=\"table-wrapper table-responsive\">\n" \
                                 "          <table id=\"stats-request-table\" class=\"table table-striped\">\n" \
                                 "            <thead>\n" \
                                 "              <tr>\n" \

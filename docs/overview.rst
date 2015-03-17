@@ -46,11 +46,6 @@ You can browser the docs via the
 `Epub <https://readthedocs.org/projects/nginx-servats-module/downloads/epub/latest/>`_
 for offline reading.
 
-Screenshot
-==========
-
-.. image:: /images/servats.png
-
 .. |license| image:: https://img.shields.io/badge/license-MIT-008ac6.svg?style=flat-square
    :target: https://nginx-servats-module.docs.scribe.tools/license
    :alt: The MIT License (MIT)

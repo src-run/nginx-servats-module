@@ -27,7 +27,7 @@ describe 'Servats Module Specs' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("Nginx Server Status")
         end
         it 'should contain the correct module version' do
-            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("HTTP Servats Module/1.0.0-alpha2")
+            expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("HTTP Servats Module/1.0.0-beta2")
         end
         it 'should contain active connections of 1' do
             expect(Curl.get('http://127.0.0.1:8888/servats_on').body).to include("<dt>Active Connections</dt>\n                    <dd>1</dd>");

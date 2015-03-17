@@ -47,7 +47,7 @@ copyright = u'2014–2015 Rob Frawley 2nd of Scribe Inc'
 # built documents.
 #
 # The short X.Y version.
-version = '1.0.0-alpha2'
+version = '1.0.0-beta2'
 # The full version, including alpha/beta/rc tags.
 release = version
 
@@ -203,7 +203,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Nginx Servats Module.tex', u'Nginx Servats Module Documentation',
+  ('index', 'NginxServatsModule.tex', u'Nginx Servats Module Documentation',
    u'Rob Frawley 2nd', 'manual'),
 ]
 
@@ -233,7 +233,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'scribecachebundle', u'Nginx Servats Module Documentation',
+    ('index', 'NginxServatsModule', u'Nginx Servats Module Documentation',
      [u'Rob Frawley 2nd'], 1)
 ]
 
@@ -247,7 +247,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Nginx Servats Module', u'Nginx Servats Module Documentation',
+  ('index', 'NginxServatsModule', u'Nginx Servats Module Documentation',
    u'Rob Frawley 2nd', 'Nginx Servats Module', 'An Nginx module that provides server status information.',
    'Nginx'),
 ]

@@ -80,7 +80,7 @@ development of, or code contained within this module.
 
 - :code:`HTTP Extended Status Module`
     - Youngseok Choi <zealot33@gmail.com>
-    - 李金虎 <beagem@163.com>
+    - Lijin Hu <beagem@163.com>
     - Heumgeun Kang <heumgeun.kang@nhn.com>
 - :code:`HTTP Fancy Index Module`
     - Adrian Perez <https://github.com/aperezdc>

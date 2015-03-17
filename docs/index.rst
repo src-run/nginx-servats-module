@@ -2,10 +2,6 @@
 Nginx Servats Module Documentation
 ##################################
 
-********
-Contents
-********
-
 .. toctree::
    :maxdepth: 3
 
@@ -13,5 +9,6 @@ Contents
    installation
    test_suite
    configuration
+   screenshots
    links
    license
