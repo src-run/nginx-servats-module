@@ -7,12 +7,30 @@
 
 *Scribe / Nginx Servats Module* is an Nginx module that provides server status information.
 
-# Documentation
+## Documentation
 
-For beutifully formatted documentation that includes compilation and installation guides, the module config directives, and additional information, visit our [Read the Docs Documentation](https://nginx-servats-module.docs.scribe.tools/docs).
+For beautifully formatted documentation that includes compilation and installation
+guides, the module configuration directives, and additional information, information
+on the Ruby-based RSpec testing architecture, our complete licensing information,
+as well as a plethora of additional information, visit our official documentation
+page at
+[nginx-servats-module.docs.scribe.tools/docs](https://nginx-servats-module.docs.scribe.tools/docs).
 
-# License
+## Screen-shots
+
+The following screen-shots show an overview of the main internal theme. Custom,
+user-specified JS and CSS includes can also be used to customize the look-and-feel
+to your specific needs.
+
+[![Overview Screen-shot](https://nginx-servats-module.docs.scribe.tools/en/latest/_images/servats-overview-02.png)](https://nginx-servats-module.docs.scribe.tools/en/latest/screenshots/)
+
+[![Connections Screen-shot](https://nginx-servats-module.docs.scribe.tools/en/latest/_images/servats-connections-01.png)](https://nginx-servats-module.docs.scribe.tools/en/latest/screenshots/)
+
+Additional screenshots can be found on our RTD documentation at [nginx-servats-module.docs.scribe.tools/docs](https://nginx-servats-module.docs.scribe.tools/en/latest/screenshots/).
+
+## License
 
 This Nginx module is released under *The MIT License (MIT)* unless otherwise
-explicitly stated. See the [LICENSE.md](LICENSE.md) file distributed with this
-source code for additional licensing information.
+explicitly stated. See the [License](https://nginx-servats-module.docs.scribe.tools/en/latest/license/)
+section of our RTD documentation for additional licensing information, including
+other relevant copyrights for this derivative work.
