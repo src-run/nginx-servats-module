@@ -1,5 +1,4 @@
 language: ruby
-
 rvm:
   - 2.2
 
@@ -17,6 +16,7 @@ env:
   - NGX_VERSION_ENV=1.7.9
   - NGX_VERSION_ENV=1.7.10
   - NGX_VERSION_ENV=1.7.11
+  - NGX_VERSION_ENV=1.7.12
 
 before_install:
   - travis_retry sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
@@ -29,3 +29,7 @@ install:
   - travis_retry rake nginx:compile
 
 script: rake test
+
+notifications:
+  slack:
+    secure: urkEHEdmCiPHvQFJD6+6G+oih+qq8WD+qLoiCZnEI9p54SGfrt8c0Q4EFcn9470Hye7UOTF4sdPYwtdFTqcjFKvCNhx2hYVbmS4gI6b+LTPGvGyXvazWi7dptFL33kuAB05I/gkqKrJH2XXLRIIXEaB/nsRSDDkxPdKtjO3ykzQ=
