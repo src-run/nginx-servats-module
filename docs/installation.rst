@@ -2,6 +2,19 @@
 Installation
 ############
 
+Pre-Packaged Nginx Build
+========================
+
+If you would prefer not to compile this module yourself, and are happy with the 
+modules compiled into Scribe's Nginx build, and are using a distribution that is
+debian based, you can visit Scribe's Launchpad page and utalize our
+`Nginx PPA <https://launchpad.net/~scribeinc/+archive/ubuntu/nginx>`_.
+
+Additionally, as we don't offer a wide selection of Ubuntu releases to Nginx
+versions, you can also build the :code:`.deb.` yourself by using this
+`slightly horrible bash script <https://code.scribe.software/projects/NGX/repos/nginx-mainline-package-builder/browse>`_
+I wrote to to generate the above mentioned packages.
+
 Build Requirements
 ==================
 

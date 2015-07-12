@@ -33,6 +33,8 @@ require patch files for a subset of version.
 - :code:`1.4.2`
 - :code:`1.6.2`
 - :code:`1.7.8`—:code:`1.7.10`
+- :code:`1.8.0`
+- :code:`1.9.0`—:code:`1.9.3`
 
 Documentation
 =============
