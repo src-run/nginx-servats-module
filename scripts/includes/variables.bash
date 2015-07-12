@@ -26,7 +26,7 @@ readonly DIR_BUILD=${DIR_ROOT}build
 NGX_CONFIG=${DIR_ROOT}scripts/fixtures/nginx.conf
 
 # Version of Nginx to build against
-NGX_VERSION=${NGX_VERSION_ENV:-"1.7.12"}
+NGX_VERSION=${NGX_VERSION_ENV:-"1.9.2"}
 
 # Path to the Nginx patche file
 NGX_PATCH=${DIR_ROOT}patches/http_servats_nginx_${NGX_VERSION}.patch
