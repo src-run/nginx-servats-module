@@ -12,11 +12,11 @@ require 'spec_helper'
 
 describe 'Basic Integration Specs' do
     describe 'Bootstrap Nginx' do
-        it 'server should be running on localhost, port 8888' do
-            expect(Curl.get('http://127.0.0.1:8888').response_code).to eq(200)
+        it 'server should be running on localhost, port 8765' do
+            expect(Curl.get('http://127.0.0.1:8765').response_code).to eq(200)
         end
         it 'server should respond with default welcome page' do
-            expect(Curl.get('http://127.0.0.1:8888').body).to include("Welcome to nginx!")
+            expect(Curl.get('http://127.0.0.1:8765').body).to include("Welcome to nginx!")
         end
     end
 end
